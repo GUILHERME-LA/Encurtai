@@ -227,10 +227,21 @@ alcançável por um job que não passou pelo gate.
 - `permissions` declarado job por job. Antes desta entrega não havia bloco algum,
   e os workflows herdavam o token amplo do repositório.
 
-> **Sinal colateral de que o mascaramento funciona:** nos logs públicos o nome do
-> projeto aparece como `***`, porque o valor de `MONGO_USER` coincide com ele. O
-> GitHub censura todo segredo conhecido na saída. Para evidências mais legíveis,
-> convém usar um nome de usuário de banco que não coincida com o do projeto.
+> **Sinal colateral de que o mascaramento funciona — e o que ele custou.** Nas
+> primeiras execuções o nome do projeto aparecia como `***` nos logs, porque o
+> valor de `MONGO_USER` era `encurtai` e o GitHub censura todo segredo conhecido
+> na saída. A proteção estava certa; o nome escolhido estava errado. O usuário
+> foi rotacionado para `svc_shortener` (com as três chaves regeradas nos dois
+> ambientes) e os logs voltaram a ser legíveis:
+>
+> ```
+> {"codigo":"Gcdwkz","urlCurta":"http://encurtai.homologacao.local/Gcdwkz"}
+> URL curta usa o BaseUrl configurado: http://encurtai.homologacao.local/Gcdwkz
+> Redirect correto: Gcdwkz -> https://example.com/devops-entrega-2
+> ```
+>
+> Execução `37834060336`, que também serviu para confirmar que a rotação das
+> credenciais não quebrou o deploy.
 
 ### 4.4 Configuração que *não* é segredo
 
