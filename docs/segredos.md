@@ -97,6 +97,29 @@ Mesmos três secrets, **com valores diferentes**, e em `Protection rules`:
 
 ---
 
+## O interruptor do deploy
+
+Os jobs de deploy do CD são guardados por uma **variável de repositório**:
+
+```yaml
+if: vars.CD_DEPLOY_HABILITADO == 'true'
+```
+
+Sem ela, os jobs ficam **pulados (cinza)**, não reprovados. O motivo: eles
+dependem do Environment e dos três segredos, que só existem onde alguém com
+permissão de administrador os cadastrou. Num repositório sem eles, o job falharia
+na primeira verificação e deixaria uma falha vermelha que não diz nada sobre o
+código — ruído que faz as pessoas pararem de olhar o CI.
+
+O job `imagens` **não** é guardado: publicar no GHCR funciona em qualquer
+repositório, porque usa o `GITHUB_TOKEN` do próprio run.
+
+Para habilitar: `Settings → Secrets and variables → Actions → Variables` →
+`CD_DEPLOY_HABILITADO = true`. É variável, não segredo — o valor não é sigiloso,
+e tratá-lo como segredo só tornaria o deploy mais opaco.
+
+---
+
 ## Configuração que *não* é segredo
 
 Separar as duas coisas importa: tratar configuração como segredo torna o

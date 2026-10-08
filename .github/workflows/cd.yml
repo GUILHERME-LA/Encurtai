@@ -204,7 +204,19 @@ jobs:
   homologacao:
     name: Deploy em homologacao
     needs: imagens
-    if: github.event_name != 'workflow_dispatch' || inputs.ambiente == 'homologacao'
+    # Interruptor explicito do deploy.
+    #
+    # Os jobs de deploy dependem do Environment 'homologacao' e dos tres
+    # segredos, que so existem onde alguem com permissao de administrador os
+    # cadastrou. Sem este guarda, o merge na main de um repositorio sem eles
+    # produziria uma falha vermelha que nao diz nada sobre o codigo.
+    #
+    # Para habilitar: Settings > Secrets and variables > Actions > Variables,
+    # crie CD_DEPLOY_HABILITADO = true. Sem a variavel, o job fica PULADO
+    # (cinza), nao reprovado.
+    if: |
+      vars.CD_DEPLOY_HABILITADO == 'true' &&
+      (github.event_name != 'workflow_dispatch' || inputs.ambiente == 'homologacao')
     runs-on: ubuntu-latest
     environment: homologacao
     permissions:
@@ -436,6 +448,7 @@ jobs:
     # sido pulada, e o destino tem que ser producao.
     if: |
       always() &&
+      vars.CD_DEPLOY_HABILITADO == 'true' &&
       needs.imagens.result == 'success' &&
       (needs.homologacao.result == 'success' || needs.homologacao.result == 'skipped') &&
       (github.ref_type == 'tag' ||
