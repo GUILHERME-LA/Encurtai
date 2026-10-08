@@ -16,10 +16,16 @@ on:
         description: "Versao ja publicada no registry para usar como versao boa (ex: 1.1.0)"
         required: true
         default: "1.1.0"
-  push:
-    # Roda sozinho quando este proprio arquivo muda, em qualquer branch:
-    # a demonstracao se testa.
-    paths: [".github/workflows/rollback-demo.yml"]
+# Sem gatilho de push de proposito.
+#
+# Havia um, com filtro de paths, para a demonstracao se auto-testar. Mas o filtro
+# casa com QUALQUER push cujo conjunto de commits inclua este arquivo, e o
+# workflow depende do Environment 'homologacao' e dos tres segredos -- que so
+# existem onde alguem com permissao de administrador os cadastrou. No
+# repositorio principal ele falhava na primeira verificacao, deixando um X
+# vermelho que nao dizia nada sobre o codigo.
+#
+# Disparo manual exige que o arquivo esteja na branch padrao do repositorio.
 
 permissions:
   contents: read
