@@ -159,6 +159,40 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # ---------------------------------------------------------------------------
+  # Portão único do CI.
+  #
+  # O nome deste job precisa ser exatamente "build-and-test": é o status check
+  # que o ruleset da branch main exige. Antes desta entrega havia um job único
+  # com esse nome; ao separá-lo em cinco, o check exigido deixou de existir e o
+  # merge ficou bloqueado aguardando algo que nunca mais apareceria.
+  #
+  # Agregar num portão é melhor do que listar cinco checks no ruleset: os jobs
+  # podem ser renomeados, separados ou somados sem precisar de permissão de
+  # administrador para mexer na configuração do repositório.
+  # ---------------------------------------------------------------------------
+  build-and-test:
+    name: build-and-test
+    needs: [formato, unitarios, integracao, segredos, imagens]
+    # always() para que o portão também reprove quando um job falha ou é pulado,
+    # em vez de ser pulado junto e deixar o check pendente para sempre.
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Conferir o resultado dos jobs do CI
+        env:
+          RESULTADOS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          set -euo pipefail
+          echo "Resultados recebidos: $RESULTADOS"
+          for r in $RESULTADOS; do
+            if [ "$r" != "success" ]; then
+              echo "::error::Algum job do CI não passou (resultados: $RESULTADOS)."
+              exit 1
+            fi
+          done
+          echo "Todos os jobs do CI passaram."
+
+  # ---------------------------------------------------------------------------
   # Valida que as imagens compilam em TODO PR, antes de qualquer publicação.
   # Sem push: descobrir que o Dockerfile quebrou só no merge é tarde.
   # ---------------------------------------------------------------------------
