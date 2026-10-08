@@ -9,7 +9,7 @@ que permite confirmar com um `curl` qual versão está no ar depois de um rollba
 
 ---
 
-## [1.1.0] — não lançada
+## [1.1.0] — 2026-10-08
 
 Entrega 2: containerização, CD, gestão de segredos, versionamento e rollback.
 
@@ -35,8 +35,13 @@ Entrega 2: containerização, CD, gestão de segredos, versionamento e rollback.
   (`dotnet format`) no CI.
 - **Reprodutibilidade**: `global.json`, `Directory.Build.props`,
   `packages.lock.json` e `.gitattributes`.
+- **Workflow de evidência de rollback** (`.github/workflows/rollback-demo.yml`):
+  provoca uma falha de readiness de propósito, prova que o pod quebrado nunca
+  entra nos endpoints do Service, e reverte — tudo numa execução, no mesmo
+  cluster. Existe separado do CD porque o CD cria um cluster novo a cada
+  execução, onde um Deployment de uma só revisão não tem para onde voltar.
 - Documentação: `docs/segredos.md`, `docs/rollback.md`,
-  `docs/evidencias-entrega-2.md`.
+  `docs/evidencias-entrega-2.md` (com as evidências de execução preenchidas).
 
 ### Modificado
 
